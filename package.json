@@ -1,0 +1,29 @@
+{
+  "name": "accountability-bot",
+  "version": "1.0.0",
+  "description": "Holds you accountable to goals.",
+  "main": "index.js",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/triis/accountability-bot.git"
+  },
+  "keywords": [
+    "discord",
+    "accountable",
+    "productivity"
+  ],
+  "author": "triis",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/triis/accountability-bot/issues"
+  },
+  "homepage": "https://github.com/triis/accountability-bot#readme"
+}
