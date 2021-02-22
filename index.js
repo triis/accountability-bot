@@ -1,5 +1,14 @@
+const fs = require('fs');
 const Discord = require('discord.js');
+
 const client = new Discord.Client();
+client.commands = new Discord.Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+commandFiles.forEach(file => {
+    const command = require(`./commands/${file}`);
+    client.commands.set(command.name, command);
+});
+
 
 // Load environment variables
 require('dotenv').config();
@@ -13,27 +22,20 @@ client.once('ready', () => {
 
 client.on('message', msg => {
     if (!msg.content.startsWith(PREFIX) || msg.author.bot) return;
-    const args = msg.content.slice(PREFIX.length).trim().split(/ +/);
-    const command = args.shift().toLowerCase();
 
+	const args = msg.content.slice(PREFIX.length).trim().split(/ +/);
+	const command = args.shift().toLowerCase();
 
-    if (command === 'ping') {
-        msg.channel.send('Pong!');
-    } else if (command === 'mute') {
-        let mutedRole = msg.guild.roles.cache.find(r => r.name === 'Muted');
-        msg.member.roles.add(mutedRole.id);
-        msg.channel.send('You are now muted.');
-    } else if (command === 'unmute') {
-        let mutedRole = msg.member.roles.cache.find(r => r.name === 'Muted');
-        if (mutedRole) {
-            msg.member.roles.remove(mutedRole.id);
-        } else {
-            msg.channel.send('You are not muted');
-        }
-    } else if (command === 'list') {
-        const taggedUsers = msg.mentions.users;
-        taggedUsers.forEach(user => msg.channel.send(`Hey there, ${user.username}!`));
+    if (!client.commands.has(command)) return msg.channel.send('Command not found.');
+
+    try {
+	    client.commands.get(command).execute(msg, args);
+    } catch (error) {
+	    console.error(error);
+	    msg.reply('there was an error trying to execute that command!');
     }
+
+
 });
 
 
