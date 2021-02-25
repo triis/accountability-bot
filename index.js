@@ -1,3 +1,17 @@
+/*
+Feature ideas:
+
+- Being able to mute yourself for specific amount of time.
+- Setting goals with timed reminders.
+- Not muting but restricting messages (muting if you are too active).
+- Adding an accountability partner that will additionally be reminded to keep an eye on you.
+- (Not sure if this one is possible), keeping an eye on status (offline, online, etc).
+- Monitor across servers.
+- Help command
+- Will probably use emoji reactions for management.
+
+*/
+
 const fs = require('fs');
 const Discord = require('discord.js');
 
@@ -57,7 +71,7 @@ client.on('message', msg => {
 
     const now = Date.now();
     const timestamps = cooldowns.get(command.name);
-    const cooldownAmount = 10000;
+    const cooldownAmount = 3000;
 
     if (timestamps.has(msg.author.id)) {
         const expirationTime = timestamps.get(msg.author.id) + cooldownAmount;
