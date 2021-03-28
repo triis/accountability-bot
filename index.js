@@ -6,7 +6,6 @@ Feature ideas:
 - Not muting but restricting messages (muting if you are too active).
 - Adding an accountability partner that will additionally be reminded to keep an eye on you.
 - (Not sure if this one is possible), keeping an eye on status (offline, online, etc).
-- Monitor across servers.
 - Help command
 - Will probably use emoji reactions for management.
 
@@ -14,6 +13,7 @@ Feature ideas:
 
 const fs = require('fs');
 const Discord = require('discord.js');
+const { Sequelize } = require('sequelize');
 
 
 // Loading commands
@@ -27,7 +27,7 @@ commandFiles.forEach(file => {
 
 
 // Initiating cooldowns collection
-const cooldowns = new Discord.Collection();
+const commandCooldowns = new Discord.Collection();
 
 
 // Load environment variables
@@ -43,19 +43,71 @@ env_variables.forEach(variable => {
 });
 
 
+// Initialising database
+const sequelize = new Sequelize('database', 'username', 'password', { // ask about this
+	host: 'localhost',
+	dialect: 'sqlite',
+	logging: false,
+	storage: 'database.sqlite',
+});
+const Timeouts = sequelize.define('timeouts', { 
+    user: {
+        type: Sequelize.INTEGER, // User ID
+    },
+    cooldown: {
+        type: Sequelize.INTEGER,
+    },
+    comment: {
+        type: Sequelize.TEXT,
+    },
+    buddy: {
+        type: Sequelize.INTEGER, // User ID
+    },
+    messageLimit: {
+        type: Sequelize.INTEGER,
+    },
+    server: {
+        type: Sequelize.TEXT,
+    }
+});
+const Servers = sequelize.define('servers', {
+    server: {
+        type: Sequelize.TEXT, // Server ID
+        unique: true,
+    },
+    prefix: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+        defaultValue: PREFIX,
+    },
+    mutedRole: {
+        type: Sequelize.TEXT, // Role ID
+    }
+});
+
+// Clearing timeouts
+function clearTimout() {
+    // Code for checking and clearing relevant timeouts
+}
+const clearingInterval = 10 * 60 * 1000; // 10 minutes
+setInterval(clearTimout, clearingInterval);
+
+// Initial function calls
 client.once('ready', () => {
-    console.log('Ready!');
-    
+    Servers.sync();
+    Timeouts.sync();
+    clearTimout();
+    console.log('Ready!');    
 });
 
 
-client.on('message', msg => {
+client.on('message', async msg => {
     if (!msg.content.startsWith(PREFIX) || msg.author.bot) return;
 
     // Making sure command is valid
 	const args = msg.content.slice(PREFIX.length).trim().split(/ +/);
 	const commandName = args.shift().toLowerCase();
-    if (msg.channel.type === 'dm' && commandName !== 'help') return msg.reply('I am a server-only bot! The only commands that works in DMs is the help command.');
+    if (msg.channel.type === 'dm' && commandName !== 'help') return msg.reply('I am a server-only bot! The only command that works in DMs is the help command.');
     if (!client.commands.has(commandName)) return msg.reply('Command not found.');
 
     const command = client.commands.get(commandName);
@@ -65,12 +117,12 @@ client.on('message', msg => {
 
 
     // Handling cooldowns
-    if (!cooldowns.has(command.name)) {
-        cooldowns.set(command.name, new Discord.Collection());
+    if (!commandCooldowns.has(command.name)) {
+        commandCooldowns.set(command.name, new Discord.Collection());
     }
 
     const now = Date.now();
-    const timestamps = cooldowns.get(command.name);
+    const timestamps = commandCooldowns.get(command.name);
     const cooldownAmount = 3000;
 
     if (timestamps.has(msg.author.id)) {
@@ -84,17 +136,24 @@ client.on('message', msg => {
     timestamps.set(msg.author.id, now);
     setTimeout(() => timestamps.delete(msg.author.id), cooldownAmount);
 
+    // Checking permissions
+    if (command.perms) {
+        const member = msg.guild.members.cache.find(mem => mem.id === msg.author.id);
+        if (!member.hasPermission(command.perms)) {
+            return msg.reply('you do not have sufficient permissions to execute this command.');
+        }
+    }
+
 
     // Executing command
     try {
-	    command.execute(msg, args);
+	    command.execute(msg, args, Servers, Timeouts);
     } catch (error) {
 	    console.error(error);
-	    msg.reply('there was an error trying to execute that command!');
+	    msg.reply('there was an error trying to execute that command! Did you make sure you used the command correctly? Check with the help command.');
     }
 
 
 });
-
 
 client.login(TOKEN);

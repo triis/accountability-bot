@@ -3,7 +3,7 @@ module.exports = {
     description: 'Lists all tagged users',
     args: true,
     usage: '<user1> <user2> etc',
-    execute(msg, args) {
+    execute(msg, args, Servers, Timeouts) {
         const taggedUsers = msg.mentions.users;
         if (taggedUsers.size > 0) {
             taggedUsers.forEach(user => msg.channel.send(`Hey there, ${user.username}!`));

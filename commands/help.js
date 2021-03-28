@@ -6,13 +6,13 @@ module.exports = {
     description: 'Lists all commands, or displays information about a specific one',
     args: false,
     usage: '[command]',
-    execute(msg, args) {
+    execute(msg, args, Servers, Timeouts) {
         const data = [];
         const { commands } = msg.client;
 
         if (!args.length) {
             data.push('Here\'s a list of all my commands:');
-            data.push(commands.map(command => command.name).join(', '));
+            data.push(commands.map(command => `- **${command.name}**`).join('\n'));
             data.push(`\nYou can send \`${PREFIX}help [command name]\` to get info on a specific command!`);
             data.push('All commands have a 3 second cooldown.');
 
