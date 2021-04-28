@@ -1,5 +1,7 @@
 # accountability-bot
 
+## ⚠️ IMPORTANT UPDATE: For the time being, development on this bot has been discontinued. The problem I was creating it to solve is no longer a problem, and as such I will not be working on it. If you are interested in the project, please feel free to fork the project.
+
 Bot for staying accountable and not being distracted by Discord. 
 
 I plan to eventually re-write the bot in TypeScript, if possible.
