@@ -52,7 +52,7 @@ const sequelize = new Sequelize('database', 'username', 'password', { // ask abo
 });
 const Timeouts = sequelize.define('timeouts', { 
     user: {
-        type: Sequelize.INTEGER, // User ID
+        type: Sequelize.TEXT, // User ID
     },
     cooldown: {
         type: Sequelize.INTEGER,
@@ -60,15 +60,12 @@ const Timeouts = sequelize.define('timeouts', {
     comment: {
         type: Sequelize.TEXT,
     },
-    buddy: {
-        type: Sequelize.INTEGER, // User ID
-    },
     messageLimit: {
         type: Sequelize.INTEGER,
     },
-    server: {
-        type: Sequelize.TEXT,
-    }
+    //server: {
+      //  type: Sequelize.TEXT,
+    //}
 });
 const Servers = sequelize.define('servers', {
     server: {
